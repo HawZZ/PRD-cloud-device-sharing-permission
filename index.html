@@ -1,0 +1,2133 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>云端配置共享设备入口权限原型</title>
+  <style>
+	    :root {
+	      --blue: #4372ff;
+	      --blue-dark: #2b6bd9;
+	      --blue-weak: #ecf5ff;
+	      --green: #67c23a;
+	      --green-weak: #f0f9eb;
+	      --orange: #e6a23c;
+	      --orange-weak: #fff7e6;
+	      --red: #f56c6c;
+	      --nav: #001529;
+	      --nav-2: #000f1e;
+	      --bg: #f9f9f9;
+	      --panel: #ffffff;
+	      --line: #ebeef5;
+	      --line-light: #e4e7ed;
+	      --line-strong: #dcdfe6;
+	      --text-primary: #303133;
+	      --text: #606266;
+	      --muted: #909399;
+	      --placeholder: #a8abb2;
+	      --shadow: 0px 0px 12px rgba(0, 0, 0, 0.12);
+	    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+	    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+	      background: var(--bg);
+	      font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, Inter, sans-serif;
+	      letter-spacing: 0;
+	      font-size: 16px;
+	      line-height: 24px;
+	    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button,
+    select {
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+	    .app {
+	      display: grid;
+	      grid-template-columns: 208px minmax(0, 1fr);
+	      min-height: 100vh;
+	    }
+
+    .sidebar {
+      background: var(--nav);
+      color: #d5deea;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+	    .brand {
+	      height: 64px;
+	      display: flex;
+	      align-items: center;
+	      padding: 0 20px;
+	      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+	      white-space: nowrap;
+	    }
+
+    .brand-logo {
+      width: 150px;
+      height: auto;
+      display: block;
+    }
+
+	    .menu {
+	      padding: 12px 8px 18px;
+	      overflow: auto;
+	    }
+
+	    .menu-block {
+	      margin-bottom: 14px;
+	    }
+
+	    .menu-title,
+	    .menu-item {
+	      min-height: 56px;
+	      display: flex;
+	      align-items: center;
+	      gap: 12px;
+	      border-radius: 4px;
+	      padding: 0 16px;
+	      color: #aebbc9;
+	      white-space: nowrap;
+	      font-size: 14px;
+	    }
+
+	    .menu-title::before {
+	      content: "";
+	      width: 24px;
+	      height: 24px;
+	      border: 2px solid currentColor;
+	      border-radius: 4px;
+	      opacity: 0.9;
+	      flex: 0 0 auto;
+	    }
+
+	    .menu-block:nth-child(1) .menu-title::before {
+	      border-radius: 50%;
+	    }
+
+	    .menu-title {
+	      color: #edf4ff;
+	      font-weight: 500;
+	    }
+
+	    .menu-item {
+	      margin-left: 36px;
+	      min-height: 50px;
+	      color: #aeb7c4;
+	    }
+
+	    .menu-item.active {
+	      margin: 8px 0;
+	      min-height: 50px;
+	      color: #fff;
+	      background: var(--blue);
+	      font-weight: 600;
+    }
+
+	    .menu-dark {
+	      margin: 10px -4px;
+	      padding: 8px 4px 10px;
+	      border-radius: 0;
+	      background: var(--nav-2);
+	    }
+
+    .main {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: auto;
+    }
+
+	    .topbar {
+	      height: 54px;
+	      padding: 0 20px;
+	      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      background: #fff;
+      box-shadow: rgba(0, 0, 0, 0.06) 0px -1px 0px 0px inset;
+    }
+
+	    .back-title {
+      display: flex;
+      align-items: center;
+	      gap: 12px;
+	      min-width: 0;
+	    }
+
+	    .back-icon {
+	      font-size: 24px;
+	      color: #6c737f;
+	      line-height: 1;
+	    }
+
+	    .title-stack {
+	      min-width: 0;
+	      display: grid;
+	      gap: 2px;
+	    }
+
+	    .title-stack strong {
+	      font-size: 16px;
+	      line-height: 24px;
+	      font-weight: 500;
+	      color: var(--text-primary);
+	    }
+
+	    .crumbs {
+	      color: var(--muted);
+	      font-size: 12px;
+	      line-height: 22px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .top-icons {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+	    .round-icon {
+	      width: 28px;
+	      height: 28px;
+	      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--blue);
+      background: var(--blue-weak);
+      border: 1px solid #e0ecff;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+	    .content {
+	      padding: 24px;
+	    }
+
+	    .product-head,
+	    .white-panel {
+	      background: var(--panel);
+	      border-radius: 4px;
+	      border: 1px solid var(--line-light);
+	      box-shadow: none;
+	    }
+
+	    .product-head {
+	      min-height: 100px;
+	      padding: 20px 24px;
+	      display: flex;
+	      align-items: flex-start;
+	      justify-content: space-between;
+	      gap: 24px;
+	    }
+
+	    .product-main {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+	    }
+
+    .product-photo,
+    .thumb,
+    .upload-box {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #eef1f5;
+      background: linear-gradient(145deg, #fff8d9, #f0f0ee 72%);
+    }
+
+	    .product-photo {
+	      width: 78px;
+	      height: 78px;
+	      border-radius: 4px;
+	      flex: 0 0 auto;
+	    }
+
+	    .thumb {
+	      width: 58px;
+	      height: 58px;
+      border-radius: 4px;
+      flex: 0 0 auto;
+    }
+
+    .product-photo::before,
+    .thumb::before,
+    .upload-box.image::before {
+      content: "";
+      position: absolute;
+      left: 28%;
+      right: 28%;
+      top: 13%;
+      height: 8%;
+      border-radius: 20px;
+      background: #16191d;
+    }
+
+    .product-photo::after,
+    .thumb::after,
+    .upload-box.image::after {
+      content: "";
+      position: absolute;
+      left: 24%;
+      right: 24%;
+      top: 24%;
+      bottom: 10%;
+      border-radius: 26px 26px 14px 14px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 244, 185, 0.58));
+      box-shadow: 0 10px 20px rgba(60, 70, 80, 0.15);
+    }
+
+	    .product-name-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+	      gap: 12px;
+	      margin-bottom: 10px;
+	    }
+
+	    .product-name-row h1 {
+	      margin: 0;
+	      font-size: 20px;
+	      line-height: 28px;
+	      font-weight: 600;
+	      color: var(--text-primary);
+	    }
+
+	    .meta-line {
+      display: flex;
+      flex-wrap: wrap;
+	      gap: 8px 18px;
+	      color: #909399;
+	      font-size: 14px;
+	      line-height: 1.8;
+	    }
+
+    .meta-line span:not(:last-child)::after {
+      content: "";
+      display: inline-block;
+      width: 1px;
+      height: 14px;
+      margin-left: 18px;
+      vertical-align: -2px;
+      background: #d8dde6;
+    }
+
+    .meta-line b {
+      color: #5f6670;
+      font-weight: 500;
+    }
+
+	    .outline-btn,
+	    .primary-btn,
+	    .text-btn,
+	    .ghost-btn {
+	      min-height: 32px;
+	      border-radius: 4px;
+	      border: 1px solid transparent;
+	      padding: 0 15px;
+      background: #fff;
+      white-space: nowrap;
+      font-size: 14px;
+      line-height: 30px;
+      font-weight: 500;
+    }
+
+	    .outline-btn {
+	      color: #606266;
+	      border-color: #dcdfe6;
+	    }
+
+	    .outline-btn:hover,
+	    .primary-btn:hover,
+	    .ghost-btn:hover,
+	    .text-btn:hover {
+	      filter: brightness(0.98);
+	    }
+
+	    .primary-btn {
+      color: #fff;
+      border-color: var(--blue);
+      background: var(--blue);
+      font-weight: 500;
+    }
+
+	    .text-btn {
+	      color: var(--blue);
+	      padding: 0 6px;
+	      border: 0;
+	    }
+
+	    .ghost-btn {
+	      color: var(--green);
+	      border-color: #b3e19d;
+	      background: #f0f9eb;
+	      min-height: 32px;
+	      padding: 0 15px;
+	      font-size: 14px;
+	    }
+
+	    .ghost-btn::before {
+	      content: "☑";
+	      margin-right: 8px;
+	      font-size: 16px;
+	    }
+
+	    .tag,
+	    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+	      min-height: 24px;
+	      padding: 0 10px;
+	      border-radius: 4px;
+      border: 1px solid transparent;
+      font-size: 12px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .tag.blue,
+    .pill.blue {
+      color: var(--blue);
+      background: var(--blue-weak);
+      border-color: #d6e6ff;
+    }
+
+    .tag.green,
+    .pill.green {
+      color: #3b9820;
+      background: var(--green-weak);
+      border-color: #cfeac2;
+    }
+
+    .tag.gray,
+    .pill.gray {
+      color: #7c8491;
+      background: #f4f6f9;
+      border-color: #e0e4eb;
+    }
+
+    .tag.orange,
+    .pill.orange {
+      color: var(--orange);
+      background: var(--orange-weak);
+      border-color: #ffe1a3;
+    }
+
+	    .stepper {
+	      margin: 24px 0;
+	      min-height: 44px;
+	      display: grid;
+	      grid-template-columns: repeat(6, minmax(120px, 1fr));
+	      border: 1px solid var(--line-light);
+	      border-radius: 4px;
+	      overflow: hidden;
+	      background: #f5f7fa;
+	    }
+
+	    .step {
+      position: relative;
+	      display: flex;
+	      align-items: center;
+	      justify-content: center;
+	      gap: 8px;
+	      min-height: 44px;
+	      padding: 0 24px;
+	      border: 0;
+	      border-right: 1px solid #edf0f4;
+	      color: #67c23a;
+	      background: transparent;
+	      font-size: 14px;
+	      font-weight: 500;
+	    }
+
+	    .step::after {
+      content: "›";
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-54%);
+      color: #c0c4cc;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .step:last-child {
+      border-right: 0;
+    }
+
+    .step:last-child::after {
+      display: none;
+    }
+
+	    .step.active {
+	      background: #f7faf5;
+	      color: #67c23a;
+	    }
+
+    .step.active::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+	      width: 0;
+	      height: 0;
+	      border-left: 8px solid transparent;
+	      border-right: 8px solid transparent;
+	      border-bottom: 6px solid #67c23a;
+    }
+
+	    .check-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border: 2px solid #67c23a;
+      border-radius: 4px;
+      font-size: 11px;
+      line-height: 1;
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+	    .white-panel {
+	      padding: 24px;
+	      margin-bottom: 24px;
+	    }
+
+	    .panel-head {
+	      display: flex;
+	      align-items: center;
+	      justify-content: space-between;
+      gap: 16px;
+	      margin-bottom: 24px;
+	    }
+
+	    .panel-head h2 {
+	      margin: 0;
+	      font-size: 16px;
+	      line-height: 24px;
+	      font-weight: 500;
+	      color: var(--text-primary);
+	    }
+
+	    .info-grid {
+	      display: grid;
+	      grid-template-columns: repeat(3, minmax(250px, 1fr));
+	      gap: 24px;
+	      align-items: start;
+	    }
+
+	    .info-column {
+	      display: grid;
+	      gap: 12px;
+	      align-content: start;
+	    }
+
+	    .info-item {
+	      min-width: 0;
+	      display: grid;
+	      grid-template-columns: 100px minmax(0, 1fr);
+	      gap: 12px;
+	      align-items: start;
+	      color: #606266;
+	      font-size: 14px;
+	      line-height: 21px;
+	    }
+
+    .info-label {
+      color: #909399;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+	    .info-value {
+	      min-width: 0;
+	      word-break: break-word;
+	      color: #606266;
+	    }
+
+    .summary-line {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .image-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+	    .white-list {
+	      margin-top: 24px;
+	      padding-top: 24px;
+	      border-top: 1px solid var(--line);
+	    }
+
+	    .white-list h3 {
+	      margin: 0 0 8px;
+	      font-size: 16px;
+	      line-height: 24px;
+	      font-weight: 500;
+	      color: var(--text-primary);
+	    }
+
+    .white-list p {
+      margin: 0 0 18px;
+      color: #8c939f;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+	    .drawer-mask {
+      position: fixed;
+      inset: 0;
+      display: none;
+      justify-content: flex-end;
+	      background: rgba(0, 0, 0, 0.5);
+	      z-index: 30;
+	    }
+
+	    .drawer-mask.open {
+	      display: flex;
+	    }
+
+	    .drawer-mask.open .drawer {
+	      animation: slideIn 160ms ease-out;
+	    }
+
+	    @keyframes slideIn {
+	      from {
+	        transform: translateX(18px);
+	        opacity: 0.8;
+	      }
+	      to {
+	        transform: translateX(0);
+	        opacity: 1;
+	      }
+	    }
+
+	    .drawer {
+	      width: min(720px, 100%);
+	      height: 100vh;
+	      background: #fff;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow);
+    }
+
+	    .drawer-head {
+	      min-height: 56px;
+	      padding: 16px 20px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+	    .drawer-head h3 {
+	      margin: 0;
+	      font-size: 16px;
+	      font-weight: 400;
+	      color: #303133;
+	    }
+
+	    .close-btn {
+      width: 20px;
+      height: 20px;
+      border: 0;
+      border-radius: 50%;
+      color: #303133;
+      background: transparent;
+      font-size: 28px;
+      line-height: 1;
+    }
+
+	    .drawer-body {
+	      flex: 1;
+	      overflow: auto;
+	      padding: 20px;
+	    }
+
+	    .close-btn:hover {
+	      background: #f5f6f8;
+	    }
+
+	    .form-grid {
+	      display: grid;
+	      gap: 18px;
+	    }
+
+	    .form-row {
+	      display: grid;
+	      grid-template-columns: 100px minmax(0, 580px);
+	      gap: 0;
+	      align-items: center;
+	    }
+
+    .form-row.top {
+      align-items: start;
+    }
+
+	    .form-label {
+	      color: #606266;
+	      text-align: right;
+	      font-size: 14px;
+	      line-height: 21px;
+	    }
+
+	    .form-label.required::before {
+	      content: "*";
+	      color: var(--red);
+	      margin-right: 8px;
+	    }
+
+	    .field::placeholder {
+	      color: var(--placeholder);
+	    }
+
+	    .field,
+	    .select {
+	      width: 100%;
+	      height: 32px;
+	      border: 1px solid #dcdfe6;
+	      border-radius: 4px;
+	      padding: 0 11px;
+      color: #606266;
+      background: #fff;
+      outline: none;
+      font-size: 14px;
+      line-height: 32px;
+    }
+
+    .field:disabled,
+    .select:disabled {
+      color: #9aa1ad;
+      background: #f5f7fa;
+    }
+
+    .field:focus,
+    .select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 2px rgba(67, 114, 255, 0.12);
+    }
+
+	    .radio-row,
+	    .check-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 28px;
+      align-items: center;
+      min-height: 32px;
+	    }
+
+	    .radio-row label,
+	    .check-row label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #606266;
+      white-space: nowrap;
+      font-size: 14px;
+    }
+
+    input[type="radio"],
+    input[type="checkbox"] {
+      width: 17px;
+      height: 17px;
+      accent-color: var(--blue);
+    }
+
+	    .select-like {
+	      min-height: 32px;
+	      border: 1px solid #dcdfe6;
+	      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 10px;
+      color: #606266;
+      background: #fff;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 10px;
+      border-radius: 4px;
+      background: #f0f1f4;
+      color: #6a717d;
+      font-size: 12px;
+    }
+
+    .hint {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+	    .upload-row {
+	      display: flex;
+	      gap: 18px;
+	      flex-wrap: wrap;
+	    }
+
+	    .radio-row input[type="radio"],
+	    .check-row input[type="checkbox"] {
+	      margin: 0;
+	    }
+
+    .image-version-stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .image-default-row {
+      min-height: 32px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 24px;
+      color: var(--text);
+      font-size: 14px;
+      line-height: 21px;
+    }
+
+    .image-default-row span {
+      color: var(--muted);
+    }
+
+    .image-default-row label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+	    .image-version-panel {
+	      border: 1px solid var(--line-light);
+	      border-radius: 4px;
+	      padding: 16px;
+	      background: #fff;
+	    }
+
+    .image-version-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 600;
+    }
+
+	    .upload-card {
+	      width: 136px;
+	      display: grid;
+	      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .upload-card div:nth-child(2) {
+      color: var(--text-primary);
+      font-size: 14px;
+      line-height: 21px;
+    }
+
+	    .upload-box {
+	      width: 136px;
+	      height: 136px;
+	      border-radius: 4px;
+      display: grid;
+      place-items: center;
+      background: #fff;
+    }
+
+	    .upload-box.add {
+	      border: 1px dashed var(--line-strong);
+	      background: #fff;
+	      color: var(--placeholder);
+	      font-size: 28px;
+	    }
+
+	    .upload-box.add:hover {
+	      border-color: var(--blue);
+	      color: var(--blue);
+	      background: #fbfdff;
+	    }
+
+    .upload-box.image {
+      background: linear-gradient(145deg, #fff8d9, #f0f0ee 72%);
+    }
+
+	    .version-section {
+	      margin-top: 24px;
+	      padding-top: 24px;
+	      border-top: 1px solid var(--line);
+    }
+
+    .version-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .version-head h4 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+	    .note {
+	      margin: 0 0 18px;
+	      padding: 12px 14px;
+      color: var(--text);
+      background: var(--blue-weak);
+      border: 1px solid #e0ecff;
+	      border-radius: 4px;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+	    .table-wrap {
+	      overflow: auto;
+	      border: 1px solid var(--line);
+	      border-radius: 4px;
+	      background: #fff;
+	    }
+
+	    table {
+	      width: 100%;
+	      min-width: 680px;
+	      border-collapse: collapse;
+	    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: middle;
+      font-size: 14px;
+    }
+
+    th {
+      color: var(--muted);
+      background: #fafafa;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .version-combo {
+      width: 200px;
+      position: relative;
+    }
+
+    .version-combo-control {
+      position: relative;
+    }
+
+    .version-combo-control::after {
+      content: "⌄";
+      position: absolute;
+      top: 50%;
+      right: 9px;
+      transform: translateY(-58%);
+      color: #909399;
+      pointer-events: none;
+      font-size: 16px;
+    }
+
+    .version-combo-input {
+      width: 100%;
+      height: 32px;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      padding: 0 28px 0 8px;
+      color: var(--text);
+      background: #fff;
+      outline: none;
+      font-size: 14px;
+      line-height: 32px;
+    }
+
+    .version-combo-input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 2px rgba(67, 114, 255, 0.12);
+    }
+
+    .version-menu {
+      display: none;
+      margin-top: 4px;
+      max-height: 150px;
+      overflow: auto;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .version-combo.open .version-menu {
+      display: grid;
+    }
+
+    .version-option,
+    .version-empty {
+      min-height: 30px;
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      border: 0;
+      background: #fff;
+      color: #606266;
+      font-size: 14px;
+      text-align: left;
+    }
+
+    .version-option:hover,
+    .version-option.selected {
+      color: var(--blue);
+      background: var(--blue-weak);
+    }
+
+    .version-option.empty {
+      color: #909399;
+    }
+
+    .version-empty {
+      color: #909399;
+    }
+
+    .inline-error {
+      min-height: 20px;
+      margin-top: 8px;
+      color: var(--red);
+      font-size: 13px;
+    }
+
+	    .drawer-foot {
+	      min-height: 64px;
+	      padding: 16px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      background: #fff;
+    }
+
+    .toast {
+      position: fixed;
+      right: 28px;
+      bottom: 28px;
+      display: none;
+      align-items: center;
+      min-height: 42px;
+      padding: 0 16px;
+      color: #2f7d1c;
+      background: #f1faec;
+      border: 1px solid #cbe8bf;
+      border-radius: 4px;
+      box-shadow: 0 10px 24px rgba(16, 24, 40, 0.16);
+      z-index: 50;
+      font-size: 14px;
+    }
+
+    .toast.show {
+      display: flex;
+    }
+
+    .status-note {
+      margin-top: 20px;
+      padding: 12px 14px;
+      color: #606266;
+      background: #f7f9fc;
+      border: 1px solid var(--line-light);
+      border-radius: 4px;
+      font-size: 14px;
+      line-height: 21px;
+    }
+
+    .status-note strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .modal-mask {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 45;
+      padding: 20px;
+    }
+
+    .modal-mask.open {
+      display: flex;
+    }
+
+    .modal-card {
+      width: min(560px, 100%);
+      background: #fff;
+      border-radius: 4px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .modal-card.wide {
+      width: min(620px, 100%);
+    }
+
+    .modal-head {
+      min-height: 56px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .modal-head h3 {
+      margin: 0;
+      color: var(--text-primary);
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 400;
+    }
+
+    .modal-body {
+      padding: 20px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .modal-foot {
+      min-height: 64px;
+      padding: 16px 20px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .danger-note {
+      padding: 12px 14px;
+      color: #606266;
+      background: #fef0f0;
+      border: 1px solid #f7c4c4;
+      border-radius: 4px;
+      font-size: 14px;
+      line-height: 21px;
+    }
+
+    .danger-note strong {
+      color: var(--red);
+      font-weight: 600;
+    }
+
+    .verify-stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    .verify-code {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 0 10px;
+      border: 1px solid #dcdfe6;
+      border-radius: 4px;
+      background: #f5f7fa;
+      color: #303133;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .verify-error {
+      min-height: 18px;
+      color: var(--red);
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .progress-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .progress-box {
+      min-height: 72px;
+      padding: 12px 14px;
+      border: 1px solid var(--line-light);
+      border-radius: 4px;
+      background: #fff;
+      display: grid;
+      gap: 4px;
+      align-content: start;
+    }
+
+    .progress-box strong {
+      color: var(--text-primary);
+      font-size: 20px;
+      line-height: 28px;
+      font-weight: 600;
+    }
+
+    .progress-box span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      background: #edf1f7;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--blue);
+      transition: width 200ms ease;
+    }
+
+    .progress-steps {
+      display: grid;
+      gap: 10px;
+    }
+
+    .progress-step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 21px;
+    }
+
+    .progress-step::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 2px solid var(--line-strong);
+      flex: 0 0 auto;
+    }
+
+    .progress-step.active {
+      color: var(--blue);
+      font-weight: 500;
+    }
+
+    .progress-step.active::before {
+      border-color: var(--blue);
+      background: var(--blue);
+    }
+
+    .progress-step.done {
+      color: #3b9820;
+    }
+
+    .progress-step.done::before {
+      border-color: #67c23a;
+      background: #67c23a;
+    }
+
+    .page-footer {
+      min-height: 78px;
+      padding: 16px 24px 0;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+	    @media (max-width: 1200px) {
+	      .info-grid {
+	        grid-template-columns: repeat(2, minmax(220px, 1fr));
+	      }
+
+	      .drawer {
+	        width: min(720px, 100%);
+	      }
+	    }
+
+    @media (max-width: 820px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        min-height: auto;
+      }
+
+      .menu {
+        display: none;
+      }
+
+      .main {
+        height: auto;
+      }
+
+      .content {
+        padding: 16px;
+      }
+
+      .product-head,
+      .product-main,
+      .panel-head,
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .product-head {
+        align-items: start;
+      }
+
+      .stepper {
+        grid-template-columns: repeat(2, minmax(130px, 1fr));
+      }
+
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .info-item {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+
+      .info-label,
+      .form-label {
+        text-align: left;
+      }
+
+      .drawer-body,
+      .drawer-foot,
+      .drawer-head {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .progress-meta {
+        grid-template-columns: 1fr;
+      }
+
+      .page-footer {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <img class="brand-logo" src="../../raw/2026-05-13-iot-admin-logo-BrgLp2AQ.svg" alt="LuteOS IoT Admin">
+      </div>
+      <nav class="menu" aria-label="主导航">
+        <div class="menu-block">
+          <div class="menu-title">概览</div>
+        </div>
+        <div class="menu-block">
+          <div class="menu-title">智能产品</div>
+          <div class="menu-dark">
+            <div class="menu-item active">产品列表</div>
+            <div class="menu-item">消息推送</div>
+          </div>
+        </div>
+        <div class="menu-block">
+          <div class="menu-title">设备管理</div>
+          <div class="menu-item">设备列表</div>
+          <div class="menu-item">固件管理</div>
+          <div class="menu-item">OTA</div>
+        </div>
+        <div class="menu-block">
+          <div class="menu-title">App</div>
+          <div class="menu-item">App列表</div>
+          <div class="menu-item">App升级</div>
+          <div class="menu-item">扩展程序管理</div>
+        </div>
+        <div class="menu-block">
+          <div class="menu-title">配置中心</div>
+          <div class="menu-item">物模型池</div>
+          <div class="menu-item">产品模板</div>
+          <div class="menu-item">产品分类</div>
+        </div>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="back-title">
+          <span class="back-icon">‹</span>
+          <div class="title-stack">
+            <strong>智能产品</strong>
+            <span class="crumbs">智能产品 / 产品列表 / 查看产品详情</span>
+          </div>
+        </div>
+        <div class="top-icons">
+          <span class="round-icon">AI</span>
+          <span class="round-icon">R</span>
+          <span class="round-icon">U</span>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="product-head">
+          <div class="product-main">
+            <span class="product-photo" aria-hidden="true"></span>
+            <div>
+              <div class="product-name-row">
+                <h1>WN08</h1>
+                <span class="tag blue">ROOT云</span>
+                <span class="tag gray">已下架</span>
+              </div>
+              <div class="meta-line">
+                <span>产品分类：<b>Sound Machine</b></span>
+                <span>产品型号：<b>WN08</b></span>
+                <span>产品代码：<b>--</b></span>
+                <span>产品ID：<b>1971187455794061314</b></span>
+                <span>产品模板ID：<b>1912464345242996738</b></span>
+              </div>
+              <div class="meta-line" style="margin-top:8px;">
+                <span>功能版本：<b>版本1 - 已发布</b></span>
+              </div>
+            </div>
+          </div>
+          <button class="ghost-btn" type="button">重新上架产品</button>
+        </section>
+
+        <nav class="stepper" aria-label="产品详情标签">
+          <button class="step active" type="button" data-tab="basic"><span class="check-icon">✓</span>基础信息</button>
+          <button class="step" type="button" data-tab="function"><span class="check-icon">✓</span>功能设计</button>
+          <button class="step" type="button" data-tab="extension"><span class="check-icon">✓</span>扩展程序</button>
+          <button class="step" type="button" data-tab="debug"><span class="check-icon">✓</span>设备调试</button>
+          <button class="step" type="button" data-tab="guide"><span class="check-icon">✓</span>配网引导</button>
+          <button class="step" type="button" data-tab="advanced"><span class="check-icon">✓</span>高级配置</button>
+        </nav>
+
+        <section class="tab-panel active" id="tab-basic">
+          <div class="white-panel">
+            <div class="panel-head">
+              <h2>产品信息</h2>
+              <button class="outline-btn" type="button" id="openEdit">✎ 编辑产品信息</button>
+            </div>
+            <div class="info-grid">
+              <div class="info-column">
+                <div class="info-item">
+                  <div class="info-label">产品ID：</div>
+                  <div class="info-value">1971187455794061314</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">产品名称：</div>
+                  <div class="info-value">WN08</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">创建用户：</div>
+                  <div class="info-value">陈晨 jacky.chen@rootglobal.net</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">创建时间：</div>
+                  <div class="info-value">2025-09-25 12:18:07</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">支持频段：</div>
+                  <div class="info-value">--</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">编辑用户：</div>
+                  <div class="info-value">陈晨 jacky.chen@rootglobal.net</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">产品类型：</div>
+                  <div class="info-value">Sound Machine</div>
+                </div>
+              </div>
+              <div class="info-column">
+                <div class="info-item">
+                  <div class="info-label">产品状态：</div>
+                  <div class="info-value"><span class="tag gray">已下架</span></div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">流程配网路由方式：</div>
+                  <div class="info-value">RN1 - LTPairAddPage</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">产品型号：</div>
+                  <div class="info-value">WN08</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">客服型号：</div>
+                  <div class="info-value">--</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">绑定方式：</div>
+                  <div class="info-value">弱绑定</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">产品代码：</div>
+                  <div class="info-value">--</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">所属App：</div>
+                  <div class="info-value">momcozy</div>
+                </div>
+              </div>
+              <div class="info-column">
+                <div class="info-item">
+                  <div class="info-label">所属平台：</div>
+                  <div class="info-value"><span class="tag blue">ROOT云</span></div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">通讯方式：</div>
+                  <div class="info-value">WIFI+BLE</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">配网方式：</div>
+                  <div class="info-value">AP配网, SmartConfig配网, 扫码配网, 蓝牙配网</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">原子化配网：</div>
+                  <div class="info-value">不支持</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">设备是否可以编组：</div>
+                  <div class="info-value">不支持</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">最近编辑时间：</div>
+                  <div class="info-value">2026-05-09 02:42:27</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">共享权限：</div>
+                  <div class="info-value" id="sharePermissionValue"><span class="tag green">开启</span></div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">产品图片：</div>
+                  <div class="info-value image-row">
+                    <span class="thumb" aria-hidden="true"></span>
+                    <span>主图</span>
+                    <span class="thumb" aria-hidden="true"></span>
+                    <span>列表图</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="white-list">
+              <h3>测试白名单</h3>
+              <p>*仅白名单用户可在未上架的功能版本中添加设备以及体验最新的功能，当功能版本发布后，所有配置项将生效</p>
+              <div class="summary-line">
+                <span>可见用户：</span>
+                <span class="text-btn">指定用户</span>
+                <button class="text-btn" type="button">编辑</button>
+              </div>
+            </div>
+
+            <div class="status-note" id="resultNote">
+              <strong>当前状态：</strong>共享权限已开启。新版 APP 可展示「共享设备」入口；旧版 APP 若发起未授权共享，将由后台阻断并提示“本设备无法共享给他人”。
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="tab-function">
+          <div class="white-panel">
+            <div class="panel-head"><h2>功能设计</h2></div>
+            <p class="note">该标签页仅用于保持现有产品详情页结构，原型重点在基础信息中的共享权限字段。</p>
+          </div>
+        </section>
+        <section class="tab-panel" id="tab-extension">
+          <div class="white-panel">
+            <div class="panel-head"><h2>扩展程序</h2></div>
+            <p class="note">该标签页仅用于保持现有产品详情页结构。</p>
+          </div>
+        </section>
+        <section class="tab-panel" id="tab-debug">
+          <div class="white-panel">
+            <div class="panel-head"><h2>设备调试</h2></div>
+            <p class="note">该标签页仅用于保持现有产品详情页结构。</p>
+          </div>
+        </section>
+        <section class="tab-panel" id="tab-guide">
+          <div class="white-panel">
+            <div class="panel-head"><h2>配网引导</h2></div>
+            <p class="note">该标签页仅用于保持现有产品详情页结构。</p>
+          </div>
+        </section>
+        <section class="tab-panel" id="tab-advanced">
+          <div class="white-panel">
+            <div class="panel-head"><h2>高级配置</h2></div>
+            <p class="note">该标签页仅用于保持现有产品详情页结构。</p>
+          </div>
+        </section>
+
+        <div class="page-footer">
+          <button class="outline-btn" type="button">下一步</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="drawer-mask" id="drawerMask" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <aside class="drawer">
+      <header class="drawer-head">
+        <h3 id="drawerTitle">编辑产品信息</h3>
+        <button class="close-btn" type="button" id="closeDrawer" aria-label="关闭">×</button>
+      </header>
+
+      <div class="drawer-body">
+        <div class="form-grid">
+          <div class="form-row">
+            <div class="form-label">产品分类：</div>
+            <div>Sound Machine / 1912464345242996738</div>
+          </div>
+          <div class="form-row">
+            <div class="form-label required">所属平台：</div>
+            <div class="radio-row">
+              <label><input type="radio" checked name="platform"> ROOT云</label>
+              <label><input type="radio" name="platform"> 涂鸦云</label>
+              <label><input type="radio" name="platform"> 觅睿云</label>
+            </div>
+          </div>
+          <div class="form-row">
+            <label class="form-label">产品ID：</label>
+            <input class="field" value="1971187455794061314" disabled>
+          </div>
+          <div class="form-row">
+            <label class="form-label required" for="interactionMode">配网交互方式：</label>
+            <select class="select" id="interactionMode">
+              <option>RN1 - LTPairAddPage</option>
+            </select>
+            <div></div>
+            <div class="hint">产品上架后不可修改</div>
+          </div>
+          <div class="form-row">
+            <label class="form-label required" for="routeMode">流程配网路由方式：</label>
+            <select class="select" id="routeMode">
+              <option>RN1 - LTPairAddPage</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label class="form-label required" for="communication">通讯方式：</label>
+            <select class="select" id="communication" disabled>
+              <option>WIFI+BLE</option>
+            </select>
+            <div></div>
+            <div class="hint">产品创建后不可修改通讯方式</div>
+          </div>
+          <div class="form-row">
+            <label class="form-label required" for="productTemplate">产品模板：</label>
+            <select class="select" id="productTemplate" disabled>
+              <option>Sound Machine</option>
+            </select>
+            <div></div>
+            <div class="hint">根据通讯方式后自动选择</div>
+          </div>
+          <div class="form-row">
+            <div class="form-label required">配网方式：</div>
+            <div class="select-like">
+              <span class="chip">AP配网 ×</span>
+              <span class="chip">SmartConfig配网 ×</span>
+              <span class="chip">扫码配网 ×</span>
+              <span class="chip">蓝牙配网 ×</span>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label required">发布区域：</div>
+            <div class="check-row">
+              <label><input type="checkbox" checked> 北美</label>
+              <label><input type="checkbox" checked> 欧洲</label>
+              <label><input type="checkbox" checked> 亚太</label>
+              <label><input type="checkbox" checked> 中国</label>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label required">设备是否可以编组：</div>
+            <div class="radio-row">
+              <label><input type="radio" name="groupable"> 支持</label>
+              <label><input type="radio" name="groupable" checked> 不支持</label>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label required">绑定类型：</div>
+            <div class="radio-row">
+              <label><input type="radio" name="bind"> 强绑定</label>
+              <label><input type="radio" name="bind" checked> 弱绑定</label>
+            </div>
+          </div>
+          <div class="form-row">
+            <label class="form-label required" for="productModel">产品型号：</label>
+            <input class="field" id="productModel" value="WN08">
+          </div>
+          <div class="form-row">
+            <label class="form-label required" for="productName">产品名称：</label>
+            <input class="field" id="productName" value="WN08">
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="productCode">产品代码：</label>
+            <input class="field" id="productCode" placeholder="请选择产品代码">
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="serviceModel">客服型号：</label>
+            <input class="field" id="serviceModel" placeholder="请输入客服型号">
+          </div>
+          <div class="form-row">
+            <label class="form-label required" for="appSelect">所属App：</label>
+            <select class="select" id="appSelect">
+              <option>momcozy</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-label required">共享权限：</div>
+            <div class="radio-row" id="sharePermissionGroup">
+              <label><input type="radio" name="sharePermission" value="enabled"> 开启</label>
+              <label><input type="radio" name="sharePermission" value="disabled"> 关闭</label>
+            </div>
+            <div></div>
+            <div class="hint">控制 APP 是否展示该产品 model 设备的「共享设备」入口。关闭后会同步删除该产品 model 下已有共享关系；旧版 APP 发起未授权共享时，后台提示“本设备无法共享给他人”。</div>
+          </div>
+          <div class="form-row top">
+            <div class="form-label required">产品图片：</div>
+            <div class="upload-row">
+              <div class="upload-card">
+                <div class="upload-box image"></div>
+                <div>产品主图</div>
+                <div>推荐像素：108*108，不可大于5M</div>
+              </div>
+              <div class="upload-card">
+                <div class="upload-box image"></div>
+                <div>产品列表图</div>
+                <div>推荐像素：108*108，不可大于5M</div>
+              </div>
+            </div>
+          </div>
+          <div class="inline-error" id="formError" aria-live="polite"></div>
+        </div>
+      </div>
+
+      <footer class="drawer-foot">
+        <button class="outline-btn" type="button" id="cancelDrawer">取消</button>
+        <button class="primary-btn" type="button" id="saveDrawer">确认</button>
+      </footer>
+    </aside>
+  </div>
+
+  <div class="modal-mask" id="confirmMask">
+    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <div class="modal-head">
+        <h3 id="confirmTitle">二次确认关闭共享权限</h3>
+      </div>
+      <div class="modal-body">
+        <div class="danger-note">
+          当前产品 model 下存在 <strong id="affectedCount">126</strong> 条共享关系。关闭后将同步删除这些共享关系，且不会自动恢复历史共享。
+        </div>
+        <div class="status-note">
+          处理完成前请不要离开当前页。若强制关闭页面，后台仍会继续执行，并根据最终结果决定是否真正关闭共享权限。
+        </div>
+        <div class="verify-stack">
+          <div>请输入当前产品型号 <span class="verify-code" id="expectedModel">WN08</span> 以确认关闭。</div>
+          <input class="field" id="modelVerifyInput" autocomplete="off" placeholder="请输入完整产品型号">
+          <div class="verify-error" id="modelVerifyError" aria-live="polite"></div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="outline-btn" type="button" id="cancelConfirm">取消</button>
+        <button class="primary-btn" type="button" id="confirmDisable" disabled>确认关闭并开始处理</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-mask" id="progressMask">
+    <section class="modal-card wide" role="dialog" aria-modal="true" aria-labelledby="progressTitle">
+      <div class="modal-head">
+        <h3 id="progressTitle">正在处理共享关系</h3>
+      </div>
+      <div class="modal-body">
+        <div class="progress-meta">
+          <div class="progress-box">
+            <strong id="progressCount">0 / 126</strong>
+            <span>已处理共享关系</span>
+          </div>
+          <div class="progress-box">
+            <strong id="progressPercent">0%</strong>
+            <span>当前进度</span>
+          </div>
+          <div class="progress-box">
+            <strong id="progressResult">处理中</strong>
+            <span>共享权限状态</span>
+          </div>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-steps">
+          <div class="progress-step active" data-step="0">阻断新增共享请求</div>
+          <div class="progress-step" data-step="1">同步删除已有共享关系</div>
+          <div class="progress-step" data-step="2">校验清理结果</div>
+          <div class="progress-step" data-step="3">写入共享权限最终状态</div>
+        </div>
+        <div class="danger-note">离开当前页需要二次提醒。旧版 APP 如果仍发起未授权共享，后台将提示“本设备无法共享给他人”。</div>
+      </div>
+      <div class="modal-foot">
+        <button class="outline-btn" type="button" id="simulateLeave">模拟离开当前页</button>
+        <button class="primary-btn" type="button" id="closeProgress" disabled>完成</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast">产品信息已保存</div>
+
+  <script>
+    let savedConfig = {
+      productModel: "WN08",
+      sharePermission: "enabled",
+      affectedShares: 126,
+      lastResult: "共享权限已开启。新版 APP 可展示「共享设备」入口；旧版 APP 若发起未授权共享，将由后台阻断并提示“本设备无法共享给他人”。"
+    };
+    let draftConfig = clone(savedConfig);
+    let cleanupMode = "success";
+    let cleanupTimer = null;
+    let cleanupRunning = false;
+
+    const els = {
+      steps: document.querySelectorAll(".step"),
+      panels: document.querySelectorAll(".tab-panel"),
+      openEdit: document.getElementById("openEdit"),
+      drawerMask: document.getElementById("drawerMask"),
+      closeDrawer: document.getElementById("closeDrawer"),
+      cancelDrawer: document.getElementById("cancelDrawer"),
+      saveDrawer: document.getElementById("saveDrawer"),
+      sharePermissionValue: document.getElementById("sharePermissionValue"),
+      formError: document.getElementById("formError"),
+      resultNote: document.getElementById("resultNote"),
+      toast: document.getElementById("toast"),
+      confirmMask: document.getElementById("confirmMask"),
+      cancelConfirm: document.getElementById("cancelConfirm"),
+      confirmDisable: document.getElementById("confirmDisable"),
+      affectedCount: document.getElementById("affectedCount"),
+      expectedModel: document.getElementById("expectedModel"),
+      modelVerifyInput: document.getElementById("modelVerifyInput"),
+      modelVerifyError: document.getElementById("modelVerifyError"),
+      progressMask: document.getElementById("progressMask"),
+      progressFill: document.getElementById("progressFill"),
+      progressCount: document.getElementById("progressCount"),
+      progressPercent: document.getElementById("progressPercent"),
+      progressResult: document.getElementById("progressResult"),
+      closeProgress: document.getElementById("closeProgress"),
+      simulateLeave: document.getElementById("simulateLeave"),
+      progressSteps: document.querySelectorAll(".progress-step")
+    };
+
+    function clone(value) {
+      return JSON.parse(JSON.stringify(value));
+    }
+
+    function shareLabel(value) {
+      return value === "enabled" ? "开启" : "关闭";
+    }
+
+    function renderSummary() {
+      if (savedConfig.sharePermission === "enabled") {
+        els.sharePermissionValue.innerHTML = `<span class="tag green">开启</span>`;
+      } else {
+        els.sharePermissionValue.innerHTML = `<span class="tag orange">关闭</span>`;
+      }
+      els.resultNote.innerHTML = `<strong>当前状态：</strong>${savedConfig.lastResult}`;
+    }
+
+    function renderDrawer() {
+      const radio = document.querySelector(`input[name="sharePermission"][value="${draftConfig.sharePermission}"]`);
+      if (radio) radio.checked = true;
+      els.formError.textContent = "";
+    }
+
+    function openDrawer() {
+      if (cleanupRunning) return;
+      draftConfig = clone(savedConfig);
+      els.drawerMask.classList.add("open");
+      renderDrawer();
+    }
+
+    function closeDrawer() {
+      if (cleanupRunning) return;
+      els.drawerMask.classList.remove("open");
+    }
+
+    function openConfirm() {
+      els.affectedCount.textContent = savedConfig.affectedShares;
+      els.expectedModel.textContent = savedConfig.productModel;
+      els.modelVerifyInput.value = "";
+      els.modelVerifyError.textContent = "";
+      els.confirmDisable.disabled = true;
+      els.confirmMask.classList.add("open");
+      window.setTimeout(() => els.modelVerifyInput.focus(), 0);
+    }
+
+    function closeConfirm() {
+      els.confirmMask.classList.remove("open");
+      els.modelVerifyError.textContent = "";
+      els.confirmDisable.disabled = true;
+    }
+
+    function validateModelVerification() {
+      const matched = els.modelVerifyInput.value === savedConfig.productModel;
+      els.confirmDisable.disabled = !matched;
+      if (!els.modelVerifyInput.value || matched) {
+        els.modelVerifyError.textContent = "";
+      } else {
+        els.modelVerifyError.textContent = "产品型号不匹配，请输入完整产品型号。";
+      }
+      return matched;
+    }
+
+    function updateProgressSteps(activeIndex) {
+      els.progressSteps.forEach((step, index) => {
+        step.classList.toggle("done", index < activeIndex);
+        step.classList.toggle("active", index === activeIndex);
+      });
+    }
+
+    function finishCleanup(success) {
+      window.clearInterval(cleanupTimer);
+      cleanupTimer = null;
+      cleanupRunning = false;
+      window.onbeforeunload = null;
+      updateProgressSteps(4);
+
+      if (success) {
+        savedConfig.sharePermission = "disabled";
+        savedConfig.affectedShares = 0;
+        savedConfig.lastResult = "共享权限已关闭。新版 APP 不展示「共享设备」入口；旧版 APP 若仍发起共享请求，后台会提示“本设备无法共享给他人”。";
+        els.progressResult.textContent = "已关闭";
+        els.formError.textContent = "";
+      } else {
+        savedConfig.sharePermission = "enabled";
+        savedConfig.affectedShares = 18;
+        savedConfig.lastResult = "共享关系存在部分删除失败，共享权限保持开启。需要先处理失败结果，再重新执行关闭。";
+        els.progressResult.textContent = "未关闭";
+      }
+
+      renderSummary();
+      els.closeProgress.disabled = false;
+      els.toast.textContent = success ? "共享权限已更新" : "存在失败结果，共享权限未关闭";
+      els.toast.classList.add("show");
+      window.setTimeout(() => els.toast.classList.remove("show"), 1800);
+    }
+
+    function startCleanup() {
+      closeConfirm();
+      closeDrawer();
+      cleanupRunning = true;
+      cleanupMode = draftConfig.sharePermission === "disabled" ? "success" : "success";
+      els.progressMask.classList.add("open");
+      els.closeProgress.disabled = true;
+      els.progressFill.style.width = "0%";
+      els.progressCount.textContent = `0 / ${savedConfig.affectedShares}`;
+      els.progressPercent.textContent = "0%";
+      els.progressResult.textContent = "处理中";
+      updateProgressSteps(0);
+      window.onbeforeunload = () => "共享关系处理中，离开后后台仍会继续执行。";
+
+      const total = savedConfig.affectedShares;
+      let percent = 0;
+      cleanupTimer = window.setInterval(() => {
+        percent = Math.min(percent + 16, 100);
+        const handled = Math.min(total, Math.round(total * percent / 100));
+        els.progressFill.style.width = `${percent}%`;
+        els.progressCount.textContent = `${handled} / ${total}`;
+        els.progressPercent.textContent = `${percent}%`;
+        if (percent < 30) updateProgressSteps(0);
+        else if (percent < 70) updateProgressSteps(1);
+        else if (percent < 96) updateProgressSteps(2);
+        else updateProgressSteps(3);
+
+        if (percent >= 100) finishCleanup(draftConfig.sharePermission === "disabled");
+      }, 260);
+    }
+
+    function saveDrawer() {
+      if (draftConfig.sharePermission === savedConfig.sharePermission) {
+        closeDrawer();
+        els.toast.textContent = "产品信息已保存";
+        els.toast.classList.add("show");
+        window.setTimeout(() => els.toast.classList.remove("show"), 1800);
+        return;
+      }
+
+      if (draftConfig.sharePermission === "disabled") {
+        openConfirm();
+        return;
+      }
+
+      savedConfig.sharePermission = "enabled";
+      savedConfig.lastResult = "共享权限已开启。新版 APP 展示「共享设备」入口；历史共享关系不会自动恢复，需要用户重新发起共享。";
+      renderSummary();
+      closeDrawer();
+      els.toast.textContent = "共享权限已更新";
+      els.toast.classList.add("show");
+      window.setTimeout(() => els.toast.classList.remove("show"), 1800);
+    }
+
+    function showProgressPreview() {
+      els.progressMask.classList.add("open");
+      els.progressFill.style.width = "62%";
+      els.progressCount.textContent = `78 / ${savedConfig.affectedShares}`;
+      els.progressPercent.textContent = "62%";
+      els.progressResult.textContent = "处理中";
+      updateProgressSteps(1);
+      els.closeProgress.disabled = false;
+    }
+
+    function bootstrapFromQuery() {
+      const params = new URLSearchParams(window.location.search);
+      const permission = params.get("permission");
+      const modal = params.get("modal");
+
+      if (permission === "disabled") {
+        savedConfig.sharePermission = "disabled";
+        savedConfig.affectedShares = 0;
+        savedConfig.lastResult = "共享权限已关闭。新版 APP 不展示「共享设备」入口；旧版 APP 若仍发起共享请求，后台会提示“本设备无法共享给他人”。";
+      }
+
+      renderSummary();
+
+      if (modal === "drawer") {
+        openDrawer();
+      } else if (modal === "confirm") {
+        openDrawer();
+        draftConfig.sharePermission = "disabled";
+        const radio = document.querySelector('input[name="sharePermission"][value="disabled"]');
+        if (radio) radio.checked = true;
+        openConfirm();
+      } else if (modal === "verify") {
+        openDrawer();
+        draftConfig.sharePermission = "disabled";
+        const radio = document.querySelector('input[name="sharePermission"][value="disabled"]');
+        if (radio) radio.checked = true;
+        openConfirm();
+      } else if (modal === "progress") {
+        showProgressPreview();
+      }
+    }
+
+    els.steps.forEach(step => {
+      step.addEventListener("click", () => {
+        const tab = step.dataset.tab;
+        els.steps.forEach(item => item.classList.toggle("active", item === step));
+        els.panels.forEach(panel => panel.classList.toggle("active", panel.id === `tab-${tab}`));
+      });
+    });
+
+    els.openEdit.addEventListener("click", openDrawer);
+    els.closeDrawer.addEventListener("click", closeDrawer);
+    els.cancelDrawer.addEventListener("click", closeDrawer);
+    els.saveDrawer.addEventListener("click", saveDrawer);
+
+    els.drawerMask.addEventListener("click", event => {
+      if (event.target === els.drawerMask) closeDrawer();
+    });
+
+    document.getElementById("sharePermissionGroup").addEventListener("change", event => {
+      if (event.target.name === "sharePermission") {
+        draftConfig.sharePermission = event.target.value;
+      }
+    });
+
+    els.cancelConfirm.addEventListener("click", closeConfirm);
+    els.confirmMask.addEventListener("click", event => {
+      if (event.target === els.confirmMask) closeConfirm();
+    });
+
+    els.modelVerifyInput.addEventListener("input", validateModelVerification);
+    els.modelVerifyInput.addEventListener("keydown", event => {
+      if (event.key === "Enter" && validateModelVerification()) {
+        startCleanup();
+      }
+    });
+    els.confirmDisable.addEventListener("click", () => {
+      if (validateModelVerification()) startCleanup();
+    });
+
+    els.simulateLeave.addEventListener("click", () => {
+      window.confirm("共享关系处理尚未完成。离开当前页后，后台会继续执行，并根据最终结果决定是否关闭共享权限。");
+    });
+
+    els.closeProgress.addEventListener("click", () => {
+      els.progressMask.classList.remove("open");
+    });
+
+    window.addEventListener("keydown", event => {
+      if (event.key === "Escape") {
+        if (els.confirmMask.classList.contains("open")) closeConfirm();
+        else if (els.drawerMask.classList.contains("open")) closeDrawer();
+      }
+    });
+
+    bootstrapFromQuery();
+  </script>
+</body>
+</html>
