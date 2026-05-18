@@ -1183,120 +1183,6 @@
       font-weight: 600;
     }
 
-    .verify-stack {
-      display: grid;
-      gap: 10px;
-    }
-
-    .verify-code {
-      display: inline-flex;
-      align-items: center;
-      min-height: 28px;
-      padding: 0 10px;
-      border: 1px solid #dcdfe6;
-      border-radius: 4px;
-      background: #f5f7fa;
-      color: #303133;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    .verify-error {
-      min-height: 18px;
-      color: var(--red);
-      font-size: 12px;
-      line-height: 18px;
-    }
-
-    .progress-meta {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .progress-box {
-      min-height: 72px;
-      padding: 12px 14px;
-      border: 1px solid var(--line-light);
-      border-radius: 4px;
-      background: #fff;
-      display: grid;
-      gap: 4px;
-      align-content: start;
-    }
-
-    .progress-box strong {
-      color: var(--text-primary);
-      font-size: 20px;
-      line-height: 28px;
-      font-weight: 600;
-    }
-
-    .progress-box span {
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 18px;
-    }
-
-    .progress-track {
-      width: 100%;
-      height: 10px;
-      border-radius: 999px;
-      background: #edf1f7;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      width: 0;
-      height: 100%;
-      border-radius: inherit;
-      background: var(--blue);
-      transition: width 200ms ease;
-    }
-
-    .progress-steps {
-      display: grid;
-      gap: 10px;
-    }
-
-    .progress-step {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 21px;
-    }
-
-    .progress-step::before {
-      content: "";
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      border: 2px solid var(--line-strong);
-      flex: 0 0 auto;
-    }
-
-    .progress-step.active {
-      color: var(--blue);
-      font-weight: 500;
-    }
-
-    .progress-step.active::before {
-      border-color: var(--blue);
-      background: var(--blue);
-    }
-
-    .progress-step.done {
-      color: #3b9820;
-    }
-
-    .progress-step.done::before {
-      border-color: #67c23a;
-      background: #67c23a;
-    }
-
     .page-footer {
       min-height: 78px;
       padding: 16px 24px 0;
@@ -1370,10 +1256,6 @@
       .drawer-head {
         padding-left: 18px;
         padding-right: 18px;
-      }
-
-      .progress-meta {
-        grid-template-columns: 1fr;
       }
 
       .page-footer {
@@ -1591,7 +1473,7 @@
             </div>
 
             <div class="status-note" id="resultNote">
-              <strong>当前状态：</strong>共享权限已开启。新版 APP 可展示「共享设备」入口；旧版 APP 若发起未授权共享，将由后台阻断并提示“本设备无法共享给他人”。
+              <strong>当前状态：</strong>共享权限已开启。新版 APP 可展示「共享设备」入口；新版共享设备接口允许创建共享。旧版 APP 原共享设备接口保持不变。
             </div>
           </div>
         </section>
@@ -1750,7 +1632,7 @@
               <label><input type="radio" name="sharePermission" value="disabled"> 关闭</label>
             </div>
             <div></div>
-            <div class="hint">控制 APP 是否展示该产品 model 设备的「共享设备」入口。关闭后会同步删除该产品 model 下已有共享关系；旧版 APP 发起未授权共享时，后台提示“本设备无法共享给他人”。</div>
+            <div class="hint">控制新版 APP 是否展示该产品 model 设备的「共享设备」入口。关闭后新版共享设备接口会拒绝新增共享；已存在共享关系保持不变。旧版 APP 原共享设备接口保持不变。</div>
           </div>
           <div class="form-row top">
             <div class="form-label required">产品图片：</div>
@@ -1778,80 +1660,15 @@
     </aside>
   </div>
 
-  <div class="modal-mask" id="confirmMask">
-    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
-      <div class="modal-head">
-        <h3 id="confirmTitle">二次确认关闭共享权限</h3>
-      </div>
-      <div class="modal-body">
-        <div class="danger-note">
-          当前产品 model 下存在 <strong id="affectedCount">126</strong> 条共享关系。关闭后将同步删除这些共享关系，且不会自动恢复历史共享。
-        </div>
-        <div class="status-note">
-          处理完成前请不要离开当前页。若强制关闭页面，后台仍会继续执行，并根据最终结果决定是否真正关闭共享权限。
-        </div>
-        <div class="verify-stack">
-          <div>请输入当前产品型号 <span class="verify-code" id="expectedModel">WN08</span> 以确认关闭。</div>
-          <input class="field" id="modelVerifyInput" autocomplete="off" placeholder="请输入完整产品型号">
-          <div class="verify-error" id="modelVerifyError" aria-live="polite"></div>
-        </div>
-      </div>
-      <div class="modal-foot">
-        <button class="outline-btn" type="button" id="cancelConfirm">取消</button>
-        <button class="primary-btn" type="button" id="confirmDisable" disabled>确认关闭并开始处理</button>
-      </div>
-    </section>
-  </div>
-
-  <div class="modal-mask" id="progressMask">
-    <section class="modal-card wide" role="dialog" aria-modal="true" aria-labelledby="progressTitle">
-      <div class="modal-head">
-        <h3 id="progressTitle">正在处理共享关系</h3>
-      </div>
-      <div class="modal-body">
-        <div class="progress-meta">
-          <div class="progress-box">
-            <strong id="progressCount">0 / 126</strong>
-            <span>已处理共享关系</span>
-          </div>
-          <div class="progress-box">
-            <strong id="progressPercent">0%</strong>
-            <span>当前进度</span>
-          </div>
-          <div class="progress-box">
-            <strong id="progressResult">处理中</strong>
-            <span>共享权限状态</span>
-          </div>
-        </div>
-        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-        <div class="progress-steps">
-          <div class="progress-step active" data-step="0">阻断新增共享请求</div>
-          <div class="progress-step" data-step="1">同步删除已有共享关系</div>
-          <div class="progress-step" data-step="2">校验清理结果</div>
-          <div class="progress-step" data-step="3">写入共享权限最终状态</div>
-        </div>
-        <div class="danger-note">离开当前页需要二次提醒。旧版 APP 如果仍发起未授权共享，后台将提示“本设备无法共享给他人”。</div>
-      </div>
-      <div class="modal-foot">
-        <button class="outline-btn" type="button" id="simulateLeave">模拟离开当前页</button>
-        <button class="primary-btn" type="button" id="closeProgress" disabled>完成</button>
-      </div>
-    </section>
-  </div>
-
   <div class="toast" id="toast">产品信息已保存</div>
 
   <script>
     let savedConfig = {
       productModel: "WN08",
       sharePermission: "enabled",
-      affectedShares: 126,
-      lastResult: "共享权限已开启。新版 APP 可展示「共享设备」入口；旧版 APP 若发起未授权共享，将由后台阻断并提示“本设备无法共享给他人”。"
+      lastResult: "共享权限已开启。新版 APP 可展示「共享设备」入口；新版共享设备接口允许创建共享。旧版 APP 原共享设备接口保持不变。"
     };
     let draftConfig = clone(savedConfig);
-    let cleanupMode = "success";
-    let cleanupTimer = null;
-    let cleanupRunning = false;
 
     const els = {
       steps: document.querySelectorAll(".step"),
@@ -1864,22 +1681,7 @@
       sharePermissionValue: document.getElementById("sharePermissionValue"),
       formError: document.getElementById("formError"),
       resultNote: document.getElementById("resultNote"),
-      toast: document.getElementById("toast"),
-      confirmMask: document.getElementById("confirmMask"),
-      cancelConfirm: document.getElementById("cancelConfirm"),
-      confirmDisable: document.getElementById("confirmDisable"),
-      affectedCount: document.getElementById("affectedCount"),
-      expectedModel: document.getElementById("expectedModel"),
-      modelVerifyInput: document.getElementById("modelVerifyInput"),
-      modelVerifyError: document.getElementById("modelVerifyError"),
-      progressMask: document.getElementById("progressMask"),
-      progressFill: document.getElementById("progressFill"),
-      progressCount: document.getElementById("progressCount"),
-      progressPercent: document.getElementById("progressPercent"),
-      progressResult: document.getElementById("progressResult"),
-      closeProgress: document.getElementById("closeProgress"),
-      simulateLeave: document.getElementById("simulateLeave"),
-      progressSteps: document.querySelectorAll(".progress-step")
+      toast: document.getElementById("toast")
     };
 
     function clone(value) {
@@ -1906,107 +1708,13 @@
     }
 
     function openDrawer() {
-      if (cleanupRunning) return;
       draftConfig = clone(savedConfig);
       els.drawerMask.classList.add("open");
       renderDrawer();
     }
 
     function closeDrawer() {
-      if (cleanupRunning) return;
       els.drawerMask.classList.remove("open");
-    }
-
-    function openConfirm() {
-      els.affectedCount.textContent = savedConfig.affectedShares;
-      els.expectedModel.textContent = savedConfig.productModel;
-      els.modelVerifyInput.value = "";
-      els.modelVerifyError.textContent = "";
-      els.confirmDisable.disabled = true;
-      els.confirmMask.classList.add("open");
-      window.setTimeout(() => els.modelVerifyInput.focus(), 0);
-    }
-
-    function closeConfirm() {
-      els.confirmMask.classList.remove("open");
-      els.modelVerifyError.textContent = "";
-      els.confirmDisable.disabled = true;
-    }
-
-    function validateModelVerification() {
-      const matched = els.modelVerifyInput.value === savedConfig.productModel;
-      els.confirmDisable.disabled = !matched;
-      if (!els.modelVerifyInput.value || matched) {
-        els.modelVerifyError.textContent = "";
-      } else {
-        els.modelVerifyError.textContent = "产品型号不匹配，请输入完整产品型号。";
-      }
-      return matched;
-    }
-
-    function updateProgressSteps(activeIndex) {
-      els.progressSteps.forEach((step, index) => {
-        step.classList.toggle("done", index < activeIndex);
-        step.classList.toggle("active", index === activeIndex);
-      });
-    }
-
-    function finishCleanup(success) {
-      window.clearInterval(cleanupTimer);
-      cleanupTimer = null;
-      cleanupRunning = false;
-      window.onbeforeunload = null;
-      updateProgressSteps(4);
-
-      if (success) {
-        savedConfig.sharePermission = "disabled";
-        savedConfig.affectedShares = 0;
-        savedConfig.lastResult = "共享权限已关闭。新版 APP 不展示「共享设备」入口；旧版 APP 若仍发起共享请求，后台会提示“本设备无法共享给他人”。";
-        els.progressResult.textContent = "已关闭";
-        els.formError.textContent = "";
-      } else {
-        savedConfig.sharePermission = "enabled";
-        savedConfig.affectedShares = 18;
-        savedConfig.lastResult = "共享关系存在部分删除失败，共享权限保持开启。需要先处理失败结果，再重新执行关闭。";
-        els.progressResult.textContent = "未关闭";
-      }
-
-      renderSummary();
-      els.closeProgress.disabled = false;
-      els.toast.textContent = success ? "共享权限已更新" : "存在失败结果，共享权限未关闭";
-      els.toast.classList.add("show");
-      window.setTimeout(() => els.toast.classList.remove("show"), 1800);
-    }
-
-    function startCleanup() {
-      closeConfirm();
-      closeDrawer();
-      cleanupRunning = true;
-      cleanupMode = draftConfig.sharePermission === "disabled" ? "success" : "success";
-      els.progressMask.classList.add("open");
-      els.closeProgress.disabled = true;
-      els.progressFill.style.width = "0%";
-      els.progressCount.textContent = `0 / ${savedConfig.affectedShares}`;
-      els.progressPercent.textContent = "0%";
-      els.progressResult.textContent = "处理中";
-      updateProgressSteps(0);
-      window.onbeforeunload = () => "共享关系处理中，离开后后台仍会继续执行。";
-
-      const total = savedConfig.affectedShares;
-      let percent = 0;
-      cleanupTimer = window.setInterval(() => {
-        percent = Math.min(percent + 16, 100);
-        const handled = Math.min(total, Math.round(total * percent / 100));
-        els.progressFill.style.width = `${percent}%`;
-        els.progressCount.textContent = `${handled} / ${total}`;
-        els.progressPercent.textContent = `${percent}%`;
-        if (percent < 30) updateProgressSteps(0);
-        else if (percent < 70) updateProgressSteps(1);
-        else if (percent < 96) updateProgressSteps(2);
-        else updateProgressSteps(3);
-
-        if (percent >= 100) finishCleanup(draftConfig.sharePermission === "disabled");
-      }, 260);
     }
 
     function saveDrawer() {
@@ -2018,28 +1726,17 @@
         return;
       }
 
-      if (draftConfig.sharePermission === "disabled") {
-        openConfirm();
-        return;
+      savedConfig.sharePermission = draftConfig.sharePermission;
+      if (savedConfig.sharePermission === "enabled") {
+        savedConfig.lastResult = "共享权限已开启。新版 APP 展示「共享设备」入口；新版共享设备接口允许新增共享。旧版 APP 原共享设备接口保持不变。";
+      } else {
+        savedConfig.lastResult = "共享权限已关闭。新版 APP 不展示「共享设备」入口；新版共享设备接口拒绝新增共享。已存在共享关系保持不变，旧版 APP 原共享设备接口保持不变。";
       }
-
-      savedConfig.sharePermission = "enabled";
-      savedConfig.lastResult = "共享权限已开启。新版 APP 展示「共享设备」入口；历史共享关系不会自动恢复，需要用户重新发起共享。";
       renderSummary();
       closeDrawer();
       els.toast.textContent = "共享权限已更新";
       els.toast.classList.add("show");
       window.setTimeout(() => els.toast.classList.remove("show"), 1800);
-    }
-
-    function showProgressPreview() {
-      els.progressMask.classList.add("open");
-      els.progressFill.style.width = "62%";
-      els.progressCount.textContent = `78 / ${savedConfig.affectedShares}`;
-      els.progressPercent.textContent = "62%";
-      els.progressResult.textContent = "处理中";
-      updateProgressSteps(1);
-      els.closeProgress.disabled = false;
     }
 
     function bootstrapFromQuery() {
@@ -2049,8 +1746,7 @@
 
       if (permission === "disabled") {
         savedConfig.sharePermission = "disabled";
-        savedConfig.affectedShares = 0;
-        savedConfig.lastResult = "共享权限已关闭。新版 APP 不展示「共享设备」入口；旧版 APP 若仍发起共享请求，后台会提示“本设备无法共享给他人”。";
+        savedConfig.lastResult = "共享权限已关闭。新版 APP 不展示「共享设备」入口；新版共享设备接口拒绝新增共享。已存在共享关系保持不变，旧版 APP 原共享设备接口保持不变。";
       }
 
       renderSummary();
@@ -2062,15 +1758,6 @@
         draftConfig.sharePermission = "disabled";
         const radio = document.querySelector('input[name="sharePermission"][value="disabled"]');
         if (radio) radio.checked = true;
-        openConfirm();
-      } else if (modal === "verify") {
-        openDrawer();
-        draftConfig.sharePermission = "disabled";
-        const radio = document.querySelector('input[name="sharePermission"][value="disabled"]');
-        if (radio) radio.checked = true;
-        openConfirm();
-      } else if (modal === "progress") {
-        showProgressPreview();
       }
     }
 
@@ -2097,33 +1784,9 @@
       }
     });
 
-    els.cancelConfirm.addEventListener("click", closeConfirm);
-    els.confirmMask.addEventListener("click", event => {
-      if (event.target === els.confirmMask) closeConfirm();
-    });
-
-    els.modelVerifyInput.addEventListener("input", validateModelVerification);
-    els.modelVerifyInput.addEventListener("keydown", event => {
-      if (event.key === "Enter" && validateModelVerification()) {
-        startCleanup();
-      }
-    });
-    els.confirmDisable.addEventListener("click", () => {
-      if (validateModelVerification()) startCleanup();
-    });
-
-    els.simulateLeave.addEventListener("click", () => {
-      window.confirm("共享关系处理尚未完成。离开当前页后，后台会继续执行，并根据最终结果决定是否关闭共享权限。");
-    });
-
-    els.closeProgress.addEventListener("click", () => {
-      els.progressMask.classList.remove("open");
-    });
-
     window.addEventListener("keydown", event => {
       if (event.key === "Escape") {
-        if (els.confirmMask.classList.contains("open")) closeConfirm();
-        else if (els.drawerMask.classList.contains("open")) closeDrawer();
+        if (els.drawerMask.classList.contains("open")) closeDrawer();
       }
     });
 
